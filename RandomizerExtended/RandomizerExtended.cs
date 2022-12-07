@@ -34,6 +34,8 @@ namespace RandomizerExtended
         public static Dictionary<string, List<GameObject>> referenceables = new Dictionary<string, List<GameObject>>();
 
         public static List<SkillTree> skillTrees = new List<SkillTree>();
+        public static List<int> numSkillTrees = new List<int>();
+
 
 
         public RandomizerExtended()
@@ -225,6 +227,7 @@ namespace RandomizerExtended
                             {
                                 if (referenceable.GetComponent<SkillTree>() != null)
                                 {
+                                    numSkillTrees.Add(referenceable.GetComponents<SkillTree>().ToList().Count);
                                     referenceable.GetComponents<SkillTree>().ToList().ForEach(skilltree =>
                                     {
                                         skillTrees.Add(duplicateType(skilltree));
@@ -497,13 +500,13 @@ namespace RandomizerExtended
                         Object.DestroyImmediate(skilltree);
                     });
 
-                    var tree_count = 3;
+                    var tree_count = numSkillTrees[Random.Range(0, numSkillTrees.Count)];
+                    //var tree_count = 3;
 
-                    if (Random.Range(1, 101) <= 75)
-                    {
-                        tree_count = 4;
-                    }
-
+                    //if (Random.Range(1, 101) <= 75)
+                    //{
+                    //    tree_count = 4;
+                    //}
                     Debug.Log("Monster \"" + monster.name + "\" got " + tree_count + " skill trees.");
 
                     var skill_manager = monster.GetComponent<SkillManager>();
@@ -516,12 +519,18 @@ namespace RandomizerExtended
                     for (int i = 0; i < tree_count; i++)
                     {
 
-                        var filtered_tree = skillTrees.FindAll(tree =>
-                        {
-                            return !((tree.Tier1Skills.Any(skill => skill_manager.BaseSkills.Contains(skill))) || (!tree.Tier1Skills.Any() && tree.Tier2Skills.Any(skill => skill_manager.BaseSkills.Contains(skill))));
-                        });
+                        // I think this is supposed to be a way to pick unique trees
+                        // but what it does is pick a tree where a skill hasn't been selected
+                        // Codes picks a tree -> selects a skill in the tree if there are skill points left
+                        // It is possible to pick duplicate trees if the mon has 1 skillpoint, 4 trees, and the last 3 trees are duplicates.
+                        //var filtered_tree = skillTrees.FindAll(tree =>
+                        //{
+                        //    return !((tree.Tier1Skills.Any(skill => skill_manager.BaseSkills.Contains(skill))) || (!tree.Tier1Skills.Any() && tree.Tier2Skills.Any(skill => skill_manager.BaseSkills.Contains(skill))));
+                        //});
 
-                        var picked_tree = filtered_tree[Random.Range(0, filtered_tree.Count)];
+                        var picked_tree = skillTrees[Random.Range(0, skillTrees.Count)];
+
+                        //var picked_tree = filtered_tree[Random.Range(0, filtered_tree.Count)];
 
                         var skill_tree = duplicateType(picked_tree);
 
